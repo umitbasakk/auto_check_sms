@@ -63,6 +63,7 @@ console.log("✅ Veritabanına başarıyla bağlandı!");
 
 async function testDatabase() {
   try {
+    
     const res = await pool.query(`
         SELECT 
             apn.*, 
