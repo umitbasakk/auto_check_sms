@@ -31,10 +31,10 @@ app.use(express.urlencoded({ extended: true }));
 
 app.get("/newSms", async (req: Request, res: Response) => {
   try {
-    console.log("📩 OnlineSim GET Webhook:", req.query);
 
     const operationId = req.query.operation_id as string;
     const code = req.query.code as string;
+    console.log("📩 OnlineSim GET Webhook:", operationId,code);
 
     if (!operationId || !code) {
       // OnlineSim hata istemez
