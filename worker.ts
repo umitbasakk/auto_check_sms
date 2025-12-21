@@ -37,27 +37,22 @@ app.get("/newSms", async (req: Request, res: Response) => {
     console.log("📩 OnlineSim GET Webhook:", operationId,code);
 
     if (!operationId || !code) {
-      // OnlineSim hata istemez
+      await pool.query(`UPDATE activation_phone_number SET sms = $1 , status = 'RECEIVED' WHERE process_id=$2`,[code ,operationId]);
       return res.status(200).send("OK");
     }
     return res.status(200).send("OK");
   } catch (err) {
-    console.error("❌ Webhook error:", err);
-    return res.status(200).send("OK");
+    return res.status(200).send(err);
   }
 });
 
 const PORT = 3004;
 
 app.listen(PORT, () => {
-    console.log(`🚀 Webhook dinleniyor: Port 3004`);
+    console.log(`Webhook dinleniyor: Port 3004`);
 });
 
-
-
-console.log("✅ Veritabanına başarıyla bağlandı!");
-
-async function testDatabase() {
+async function smsCheck() {
   try {
 
     const res = await pool.query(`
@@ -113,15 +108,13 @@ async function testDatabase() {
   } catch (err) {
     console.error("❌ Veritabanı bağlantı hatası:", err);
   } finally {
-    // Test bittiğinde havuzu kapatmak istersen (sürekli çalışan bir app değilse)
-    // await pool.end();
   }
 }
 
 async function Loop(){
     const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
     while(true){
-        testDatabase();
+        smsCheck();
         await sleep(5000)
     }
 }
