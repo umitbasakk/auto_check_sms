@@ -23,11 +23,6 @@ const smsManAdapter = new SmsManAdapter(
     process.env.SMS_MAN_BASE_URL || ""
 );
 
-const onlineSimAdapter = new OnlineSimAdapter(
-    process.env.ONLINE_SIM_KEY || "",
-    process.env.ONLINE_SIM_BASE_URL || "",
-    process.env.ONLINE_SIM_DEV_ID || "",
-);
 
 const app = express();
 app.use(express.json())
@@ -63,7 +58,7 @@ console.log("✅ Veritabanına başarıyla bağlandı!");
 
 async function testDatabase() {
   try {
-    
+
     const res = await pool.query(`
         SELECT 
             apn.*, 
