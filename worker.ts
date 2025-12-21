@@ -13,6 +13,7 @@ const pool = new Pool({
   connectionString: connectionString,
 });
 
+
 const fiveSimAdapter = new FiveSimAdapter(
     process.env.FIVE_SIM_BEARER_TOKEN || "",
     process.env.FIVE_SIM_BASE_URL || ""
