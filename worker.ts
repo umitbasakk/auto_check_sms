@@ -154,7 +154,7 @@ async function Loop(){
     const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
     while(true){
         smsCheck();
-        await sleep(10000000)
+        await sleep(2000)
     }
 }
 
