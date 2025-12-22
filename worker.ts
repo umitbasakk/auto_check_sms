@@ -54,60 +54,99 @@ app.listen(PORT, () => {
 
 async function smsCheck() {
   try {
-
+    // 1. Veritabanından PENDING olanları çek
     const res = await pool.query(`
         SELECT 
             apn.*, 
-            sp.name as provider_name, 
-            sp.is_active as provider_active 
+            sp.name as provider_name 
         FROM "activation_phone_number" apn
         INNER JOIN "SmsProvider" sp ON apn.provider_id = sp.id 
         WHERE apn.status = 'PENDING'
     `);
-    const numbers = res.rows; 
+    
+    const pendingNumbers = res.rows;
+    if (pendingNumbers.length === 0) return; // Bekleyen yoksa çık
+
     const now = new Date();
-    for(const row of numbers){
-        const item: ActivationPhoneNumber = {
+
+    let fiveSimOrderMap = new Map();
+    const hasFiveSim = pendingNumbers.some(row => row.provider_name === SmsProvider.FiveSim);
+
+    if (hasFiveSim) {
+        try {
+            const historyResponse = await fiveSimAdapter.getLastOrders(100); 
+              if(historyResponse && historyResponse.Data) {
+                historyResponse.Data.forEach(order => {
+                    fiveSimOrderMap.set(order.id.toString(), order); 
+                });
+            }
+        } catch (apiErr) {
+            console.error("5sim History API hatası:", apiErr);
+        }
+    }
+    console.log(fiveSimOrderMap);
+    for (const row of pendingNumbers) {
+        const item = {
             ...row,
-            provider: {
-                name: row.provider_name,
-                id: row.provider_id,
-            } as any
+            provider: { name: row.provider_name, id: row.provider_id }
         };
+
+        // 1. Süre Kontrolü (Yerel)
         const expireDate = new Date(item.expires);
 
         if (expireDate < now) {
-            console.log(item.phone+ " Süresi Doldu Provider:"+item.provider.name);
+            console.log(`${item.phone} Süresi Doldu. Provider: ${item.provider.name}`);
             await pool.query(
-            `UPDATE activation_phone_number SET status = 'CANCELED' WHERE process_id = $1`,
-            [item.process_id]
+                `UPDATE activation_phone_number SET status = 'CANCELED' WHERE process_id = $1`,
+                [item.process_id]
             );
             continue; 
         }
-        switch(item.provider.name){
+
+        switch (item.provider.name) {
             case SmsProvider.FiveSim:
                 {
-                   const response = await fiveSimAdapter.getSms(item.process_id)
-                   if(response.sms.length >0){
-                        console.log("received Five Sim");
-                        const res = await pool.query(`UPDATE activation_phone_number SET sms = $1 , status = 'RECEIVED' WHERE process_id=$2`,[response.sms[0].text,item.process_id]);
+                   const apiOrder = fiveSimOrderMap.get(item.process_id.toString());
+
+                   if (apiOrder) {
+                       if (apiOrder.sms && apiOrder.sms.length > 0) {
+                           const smsCode = apiOrder.sms[0].code; 
+                           console.log("received Five Sim via History Check");
+                           
+                           await pool.query(
+                               `UPDATE activation_phone_number SET sms = $1, status = 'RECEIVED' WHERE process_id=$2`,
+                               [smsCode, item.process_id]
+                           );
+                       } else if (apiOrder.status === 'CANCELED' || apiOrder.status === 'TIMEOUT') {
+                           await pool.query(
+                               `UPDATE activation_phone_number SET status = 'CANCELED' WHERE process_id=$1`,
+                               [item.process_id]
+                           );
+                       }
                    }
                    break;
                 }
+
             case SmsProvider.SmsMan:
                 {
-                    const response = await smsManAdapter.getSms(item.process_id)
-                    if(response  && response.sms_code != ""){
-                        console.log("received Sms Man");
-                        const res = await pool.query(`UPDATE activation_phone_number SET sms = $1 , status = 'RECEIVED' WHERE process_id=$2`,[response.sms_code ,item.process_id]);
-                   }
-                   break;
+                    try {
+                        const response = await smsManAdapter.getSms(item.process_id);
+                        if (response && response.sms_code) {
+                            console.log("received Sms Man");
+                            await pool.query(
+                                `UPDATE activation_phone_number SET sms = $1, status = 'RECEIVED' WHERE process_id=$2`,
+                                [response.sms_code, item.process_id]
+                            );
+                        }
+                    } catch (e) {
+                        console.error("SmsMan check error:", e);
+                    }
+                    break;
                 }              
         }
     }
   } catch (err) {
-    console.error("❌ Veritabanı bağlantı hatası:", err);
-  } finally {
+
   }
 }
 
@@ -115,7 +154,7 @@ async function Loop(){
     const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
     while(true){
         smsCheck();
-        await sleep(5000)
+        await sleep(10000000)
     }
 }
 
