@@ -85,8 +85,6 @@ async function smsCheck() {
         }
     }
     
-    console.log(fiveSimOrderMap);
-
     for (const row of pendingNumbers) {
         const item = {
             ...row,
