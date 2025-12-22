@@ -84,7 +84,9 @@ async function smsCheck() {
             console.error("5sim History API hatası:", apiErr);
         }
     }
+    
     console.log(fiveSimOrderMap);
+
     for (const row of pendingNumbers) {
         const item = {
             ...row,
