@@ -44,7 +44,7 @@ export class FiveSimAdapter {
                 limit: limit
             }
         });
-        
+        console.log(response);
         return response.data;
 
     } catch (error) {
