@@ -37,7 +37,7 @@ app.get("/newSms", async (req: Request, res: Response) => {
     console.log("📩 OnlineSim GET Webhook:", operationId,code);
 
     if (operationId && code) {
-      await pool.query(`UPDATE activation_phone_number SET sms = $1 , status = 'RECEIVED' WHERE process_id=$2`,[code ,operationId]);
+      await pool.query(`UPDATE activation_phone_number SET sms = array_append(COALESCE(sms,'{}'),$1) , status = 'RECEIVED' WHERE process_id=$2`,[code ,operationId]);
       return res.status(200).send("OK");
     }
     return res.status(200).send("OK");
@@ -114,7 +114,7 @@ async function smsCheck() {
                            console.log("received Five Sim via History Check");
                            
                            await pool.query(
-                               `UPDATE activation_phone_number SET sms = $1, status = 'RECEIVED' WHERE process_id=$2`,
+                               `UPDATE activation_phone_number SET sms = array_append(COALESCE(sms,'{}'),$1), status = 'RECEIVED' WHERE process_id=$2`,
                                [smsCode, item.process_id]
                            );
                        } else if (apiOrder.status === 'CANCELED' || apiOrder.status === 'TIMEOUT') {
@@ -134,7 +134,7 @@ async function smsCheck() {
                         if (response && response.sms_code) {
                             console.log("received Sms Man");
                             await pool.query(
-                                `UPDATE activation_phone_number SET sms = $1, status = 'RECEIVED' WHERE process_id=$2`,
+                                `UPDATE activation_phone_number SET sms = array_append(COALESCE(sms,'{}'),$1), status = 'RECEIVED' WHERE process_id=$2`,
                                 [response.sms_code, item.process_id]
                             );
                         }
