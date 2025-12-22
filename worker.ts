@@ -36,7 +36,7 @@ app.get("/newSms", async (req: Request, res: Response) => {
     const code = req.query.code as string;
     console.log("📩 OnlineSim GET Webhook:", operationId,code);
 
-    if (!operationId || !code) {
+    if (operationId && code) {
       await pool.query(`UPDATE activation_phone_number SET sms = $1 , status = 'RECEIVED' WHERE process_id=$2`,[code ,operationId]);
       return res.status(200).send("OK");
     }
