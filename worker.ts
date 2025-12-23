@@ -131,6 +131,7 @@ async function smsCheck() {
                 {
                     try {
                         const response = await smsManAdapter.getSms(item.process_id);
+                        console.log(response)
                         if (response && response.sms_code) {
                             console.log("received Sms Man");
                             await pool.query(
