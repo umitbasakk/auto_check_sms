@@ -100,7 +100,7 @@ async function smsCheck() {
         const expireDate = new Date(item.expires);
 
         if (expireDate < now) {
-            await numaAdapter.cancelProduct(item.process_id,item.user_id)
+            await numaAdapter.cancelProduct(item.phone,item.user_id)
             continue; 
         }
 
