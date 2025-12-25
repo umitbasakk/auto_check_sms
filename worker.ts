@@ -6,6 +6,7 @@ import { SmsProvider } from './enums/Sms';
 import { SmsManAdapter } from './services/SmsManAdapter';
 import { OnlineSimAdapter } from './services/OnlineSimAdapter';
 import express, { Request, Response } from 'express';
+import { NumaAdapter } from './services/NumaAdapter';
 
 const connectionString = "postgresql://numaroot:20Bwp@12.ntrAAv@18.132.165.74:5432/numadb?schema=public&sslmode=disable";
 
@@ -22,6 +23,10 @@ const fiveSimAdapter = new FiveSimAdapter(
 const smsManAdapter = new SmsManAdapter(
     process.env.SMS_MAN_API_KEY || "",
     process.env.SMS_MAN_BASE_URL || ""
+);
+
+const numaAdapter = new NumaAdapter(
+    process.env.NUMA_BASE_URL || ""
 );
 
 
@@ -95,11 +100,7 @@ async function smsCheck() {
         const expireDate = new Date(item.expires);
 
         if (expireDate < now) {
-            console.log(`${item.phone} Süresi Doldu. Provider: ${item.provider.name}`);
-            await pool.query(
-                `UPDATE activation_phone_number SET status = 'CANCELED' WHERE process_id = $1`,
-                [item.process_id]
-            );
+            await numaAdapter.cancelProduct(item.process_id)
             continue; 
         }
 

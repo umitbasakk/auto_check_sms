@@ -1,0 +1,42 @@
+import axios, { type AxiosInstance } from 'axios';
+import { FiveSimStatusEntity } from '../entities/FiveSimResponse';
+import { SmsManStatusEntity } from '../entities/SmsManStatusEntity';
+
+export class NumaAdapter {
+  private readonly httpClient: AxiosInstance;
+  private readonly baseUrl: string;
+
+  constructor(baseUrl:string) {
+    this.baseUrl = baseUrl;
+
+
+
+    this.httpClient = axios.create({
+      baseURL: this.baseUrl,
+      headers: {
+        'Accept': 'application/json',
+        'x-api-key': process.env.NUMA_KEY
+      },
+      timeout:5000
+    });
+  }
+
+  public async cancelProduct(id: number): Promise<SmsManStatusEntity> {
+    const endpoint = `sms/cancelfromservice`;
+    
+    try {
+        const response = await this.httpClient.post<SmsManStatusEntity>(endpoint, { process_id:id });  
+        const result = response.data;
+        return result;
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {        
+        if (error.response.status === 400) {
+            throw new Error(`FiveSim API Hata Kodu: ${error.response.data.error || 'Geçersiz İstek'}`);
+        }
+        throw new Error(`5sim API'ye bağlanırken hata oluştu: ${error.response.statusText}`);
+      } else {
+        throw new Error('Harici SMS aktivasyon servisine ulaşılamıyor.');
+      }
+    }
+  }
+}
