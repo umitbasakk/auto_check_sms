@@ -21,11 +21,11 @@ export class NumaAdapter {
     });
   }
 
-  public async cancelProduct(id: number): Promise<SmsManStatusEntity> {
+  public async cancelProduct(id: number,user_id:string): Promise<SmsManStatusEntity> {
     const endpoint = `sms/cancelfromservice`;
     
     try {
-        const response = await this.httpClient.post<SmsManStatusEntity>(endpoint, { process_id:id });  
+        const response = await this.httpClient.post<SmsManStatusEntity>(endpoint, { process_id:id,user_id:user_id });  
         const result = response.data;
         return result;
     } catch (error) {
