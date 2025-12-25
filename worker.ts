@@ -100,6 +100,7 @@ async function smsCheck() {
         const expireDate = new Date(item.expires);
 
         if (expireDate < now) {
+            console.log("iptal olacak"+item.phone);
             await numaAdapter.cancelProduct(item.phone,item.user_id)
             continue; 
         }
