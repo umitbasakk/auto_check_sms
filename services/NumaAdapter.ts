@@ -29,6 +29,7 @@ export class NumaAdapter {
         const result = response.data;
         return result;
     } catch (error) {
+      console.log(error);
       if (axios.isAxiosError(error) && error.response) {        
         if (error.response.status === 400) {
             throw new Error(`FiveSim API Hata Kodu: ${error.response.data.error || 'Geçersiz İstek'}`);
