@@ -37,12 +37,11 @@ app.use(express.urlencoded({ extended: true }));
 app.get("/newSms", async (req: Request, res: Response) => {
   try {
 
-    const operationId = req.query.operation_id as string;
-    const code = req.query.code as string;
-    console.log("📩 OnlineSim GET Webhook:", operationId,code);
+    const process_id = req.query.operation_id as string;
+    const smsCode = req.query.code as string;
 
-    if (operationId && code) {
-      await pool.query(`UPDATE activation_phone_number SET sms = array_append(COALESCE(sms,'{}'),$1) , status = 'RECEIVED' WHERE process_id=$2`,[code ,operationId]);
+    if (process_id && smsCode) {
+      await numaAdapter.successSmsProductWithSms(smsCode,process_id)
       return res.status(200).send("OK");
     }
     return res.status(200).send("OK");
@@ -113,17 +112,9 @@ async function smsCheck() {
                    if (apiOrder) {
                        if (apiOrder.sms && apiOrder.sms.length > 0) {
                            const smsCode = apiOrder.sms[0].code; 
-                           console.log("received Five Sim via History Check");
-                           
-                           await pool.query(
-                               `UPDATE activation_phone_number SET sms = array_append(COALESCE(sms,'{}'),$1), status = 'RECEIVED' WHERE process_id=$2`,
-                               [smsCode, item.process_id]
-                           );
+                           await numaAdapter.successSmsProductWithSms(smsCode,item.process_id)
                        } else if (apiOrder.status === 'CANCELED' || apiOrder.status === 'TIMEOUT') {
-                           await pool.query(
-                               `UPDATE activation_phone_number SET status = 'CANCELED' WHERE process_id=$1`,
-                               [item.process_id]
-                           );
+                           await numaAdapter.cancelProduct(item.phone,item.user_id)
                        }
                    }
                    break;
@@ -135,10 +126,8 @@ async function smsCheck() {
                         const response = await smsManAdapter.getSms(item.process_id);
                         if (response && response.sms_code) {
                             console.log("received Sms Man");
-                            await pool.query(
-                                `UPDATE activation_phone_number SET sms = array_append(COALESCE(sms,'{}'),$1), status = 'RECEIVED' WHERE process_id=$2`,
-                                [response.sms_code, item.process_id]
-                            );
+                            const smsCode= response.sms_code
+                            await numaAdapter.successSmsProductWithSms(smsCode,item.process_id)
                         }
                     } catch (e) {
                         console.error("SmsMan check error:", e);
