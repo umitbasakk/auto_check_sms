@@ -133,7 +133,19 @@ async function smsCheck() {
                         console.error("SmsMan check error:", e);
                     }
                     break;
-                }              
+                }    
+            case SmsProvider.OnlineSim:
+            {
+                try {
+                    const smsCode = "test"
+                    console.log("received Sms Man");
+                    await numaAdapter.successSmsProductWithSms(smsCode,item.process_id)
+                    
+                } catch (e) {
+                    console.error("SmsMan check error:", e);
+                }
+                break;
+            }           
         }
     }
   } catch (err) {
