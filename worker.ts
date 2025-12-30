@@ -58,6 +58,11 @@ app.post('/newSmsTwilio',(req: Request,res: Response)=>{
     const params = req.body;
     const url = process.env.TWILIO_SMS_CALLBACK_URL || "";
     const authToken = process.env.TWILIO_AUTH_TOKEN || "";
+    
+    console.log("Gelen İmza:", twilioSignature);
+    console.log("Kullanılan URL:", url);
+    console.log("Kullanılan Body:", req.body);
+    console.log("Kullanılan Token:", authToken.substring(0, 5) + "...");
 
     const requestIsValid = twilio.validateRequest(
         authToken,
