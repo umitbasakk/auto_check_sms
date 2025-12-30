@@ -51,31 +51,23 @@ app.get("/newSms", async (req: Request, res: Response) => {
   }
 });
 
-app.post('/newSmsTwilio',(req: Request,res: Response)=>{
-    console.log("İstek Geldi.")
-    const signatureHeader = req.headers['x-twilio-signature'];
-    const twilioSignature = Array.isArray(signatureHeader) ? signatureHeader[0] : "";    
-    const params = req.body;
-    const url = process.env.TWILIO_SMS_CALLBACK_URL || "";
-    const authToken = process.env.TWILIO_AUTH_TOKEN || "";
-    
-    console.log("Gelen İmza:", twilioSignature);
-    console.log("Kullanılan URL:", url);
-    console.log("Kullanılan Body:", req.body);
-    console.log("Kullanılan Token:", authToken.substring(0, 5) + "...");
+app.post('/newSmsTwilio',twilio.webhook(
+    {
+        validate:true,
+        authToken:process.env.TWILIO_AUTH_TOKEN
+    }),(req: Request,res: Response)=>{
 
-    const requestIsValid = twilio.validateRequest(
-        authToken,
-        twilioSignature,
-        url,
-        params
-    )
-    if (!requestIsValid) {
-        console.log("Doğrulanmadı.")
-        return res.status(403).send('Sahte İstek Engellendi!');
-    }
-    console.log("SMS geldi")
-    console.log(req.body)
+        console.log("✅ İstek başarıyla doğrulandı ve geldi.");
+        
+        const { From, Body, MessageSid } = req.body;
+        
+        console.log(`📩 Gönderen: ${From}`);
+        console.log(`💬 Mesaj: ${Body}`);
+
+        const twiml = new twilio.twiml.MessagingResponse();
+        
+        res.type('text/xml');
+        res.send(twiml.toString());
 })
 
 const PORT = 3004;
