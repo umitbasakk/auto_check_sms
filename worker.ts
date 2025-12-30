@@ -53,8 +53,7 @@ app.get("/newSms", async (req: Request, res: Response) => {
 
 app.post('/newSmsTwilio',twilio.webhook(
     {
-        validate:true,
-        authToken:process.env.TWILIO_AUTH_TOKEN
+        validate:false,
     }),(req: Request,res: Response)=>{
 
         console.log("✅ İstek başarıyla doğrulandı ve geldi.");
