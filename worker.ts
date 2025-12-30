@@ -51,7 +51,11 @@ app.get("/newSms", async (req: Request, res: Response) => {
   }
 });
 
-app.post('/newSmsTwilio',twilio.webhook(),(req: Request,res: Response)=>{
+app.post('/newSmsTwilio',twilio.webhook({
+    validate:true,
+    authToken:process.env.TWILIO_AUTH_TOKEN,
+    url:process.env.TWILIO_SMS_CALLBACK_URL
+}),(req: Request,res: Response)=>{
 
         console.log("✅ İstek başarıyla doğrulandı ve geldi.");
         
