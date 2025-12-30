@@ -66,7 +66,7 @@ app.post('/newSmsTwilio',twilio.webhook(
 
         const twiml = new twilio.twiml.MessagingResponse();
         
-        res.type('text/xml');
+        res.set('Content-Type', 'text/xml');
         res.send(twiml.toString());
 })
 
