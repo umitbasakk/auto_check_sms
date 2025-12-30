@@ -7,6 +7,7 @@ import { SmsManAdapter } from './services/SmsManAdapter';
 import { OnlineSimAdapter } from './services/OnlineSimAdapter';
 import express, { Request, Response } from 'express';
 import { NumaAdapter } from './services/NumaAdapter';
+import twilio from 'twilio';
 
 const connectionString = "postgresql://numaroot:20Bwp@12.ntrAAv@18.132.165.74:5432/numadb?schema=public&sslmode=disable";
 
@@ -49,6 +50,26 @@ app.get("/newSms", async (req: Request, res: Response) => {
     return res.status(200).send(err);
   }
 });
+
+app.post('/newSmsTwilio',(req: Request,res: Response)=>{
+    const signatureHeader = req.headers['x-twilio-signature'];
+    const twilioSignature = Array.isArray(signatureHeader) ? signatureHeader[0] : "";    
+    const params = req.body;
+    const url = process.env.TWILIO_SMS_CALLBACK_URL || "";
+    const authToken = process.env.TWILIO_AUTH_TOKEN || "";
+
+    const requestIsValid = twilio.validateRequest(
+        authToken,
+        twilioSignature,
+        url,
+        params
+    )
+    if (!requestIsValid) {
+        return res.status(403).send('Sahte İstek Engellendi!');
+    }
+    console.log("SMS geldi")
+    console.log(req.body)
+})
 
 const PORT = 3004;
 
