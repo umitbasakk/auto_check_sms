@@ -52,6 +52,7 @@ app.get("/newSms", async (req: Request, res: Response) => {
 });
 
 app.post('/newSmsTwilio',(req: Request,res: Response)=>{
+    console.log("İstek Geldi.")
     const signatureHeader = req.headers['x-twilio-signature'];
     const twilioSignature = Array.isArray(signatureHeader) ? signatureHeader[0] : "";    
     const params = req.body;
@@ -65,6 +66,7 @@ app.post('/newSmsTwilio',(req: Request,res: Response)=>{
         params
     )
     if (!requestIsValid) {
+        console.log("Doğrulanmadı.")
         return res.status(403).send('Sahte İstek Engellendi!');
     }
     console.log("SMS geldi")
