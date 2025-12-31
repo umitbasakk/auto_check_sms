@@ -49,11 +49,30 @@ export class NumaAdapter {
         console.log(error);
         if (axios.isAxiosError(error) && error.response) {        
           if (error.response.status === 400) {
-              throw new Error(`FiveSim API Hata Kodu: ${error.response.data.error || 'Geçersiz İstek'}`);
+              throw new Error(`Numa Backend API Hata Kodu: ${error.response.data.error || 'Geçersiz İstek'}`);
           }
-          throw new Error(`5sim API'ye bağlanırken hata oluştu: ${error.response.statusText}`);
+          throw new Error(`Numa Backend API'yebağlanırken hata oluştu: ${error.response.statusText}`);
         } else {
-          throw new Error('Harici SMS aktivasyon servisine ulaşılamıyor.');
+          throw new Error('Numa Backend Servisine Ulaşılamıyor.');
+        }
+      }
+  }
+
+  public async receivedSmsByRentNumber(from:string,to:string,body:string): Promise<SmsManStatusEntity> {
+      const endpoint = `rent/sms/receive`;
+      try {
+          const response = await this.httpClient.post<any>(endpoint, {from:from,to:to,body:body});  
+          const result = response.data;
+          return result;
+      } catch (error) {
+        console.log(error);
+        if (axios.isAxiosError(error) && error.response) {        
+          if (error.response.status === 400) {
+              throw new Error(`Numa Backend API Hata Kodu: ${error.response.data.error || 'Geçersiz İstek'}`);
+          }
+          throw new Error(`Numa Backend API'ye bağlanırken hata oluştu: ${error.response.statusText}`);
+        } else {
+          throw new Error('Numa Backend Servisine Ulaşılamıyor.');
         }
       }
   }
