@@ -55,18 +55,13 @@ app.post('/newSmsTwilio',twilio.webhook({
     validate:true,
     authToken:process.env.TWILIO_AUTH_TOKEN,
     url:process.env.TWILIO_SMS_CALLBACK_URL
-}),(req: Request,res: Response)=>{
+}),async(req: Request,res: Response)=>{
 
         console.log("✅ İstek başarıyla doğrulandı ve geldi.");
         
         const { From, Body,To } = req.body;
         
-        console.log(`📩 Gönderen: ${From}`);
-        console.log(`💬 Mesaj: ${Body}`);
-        console.log(`Detay: ${To}`);
-        Object.entries(req.body).forEach(([key, value]) => {
-            console.log(`${key}: ${value}`);
-        });
+        await numaAdapter.receivedSmsByRentNumber(From,To,Body)
 
         const twiml = new twilio.twiml.MessagingResponse();
         
