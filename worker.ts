@@ -64,6 +64,9 @@ app.post('/newSmsTwilio',twilio.webhook({
         console.log(`📩 Gönderen: ${From}`);
         console.log(`💬 Mesaj: ${Body}`);
         console.log(`Detay: ${To}`);
+        Object.entries(req.body).forEach(([key, value]) => {
+            console.log(`${key}: ${value}`);
+        });
 
         const twiml = new twilio.twiml.MessagingResponse();
         
