@@ -83,7 +83,7 @@ app.post('/newCallTwilio', twilio.webhook({
 
     // Kendi mantığını çalıştır
     const twimlXml = await numaAdapter.receiveCall(From, To, CallSid,CallStatus);
-    
+    console.log("Response:"+twimlXml)
     res.set('Content-Type', 'text/xml');
     res.send(twimlXml);
 });
