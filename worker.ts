@@ -205,13 +205,13 @@ async function rentedNumberExpiresCheck() {
     const pendingNumbers = res.rows;
     if (pendingNumbers.length === 0) return; 
     const now = new Date();
-
+    
     pendingNumbers.forEach(async(item)=>{
         if(item.expires_at < now){
             //await numaAdapter.releaseNumber(item.number)
-            console.log(item.phone+"Bu Numaranın Tarihi geçti.")
+            console.log(item.number+"Bu Numaranın Tarihi geçti.")
         }else{
-            console.log(item.phone+"Bu Numaranın Tarihi Henüz Geçmedi.")
+            console.log(item.number+"Bu Numaranın Tarihi Henüz Geçmedi.")
         }
     })
 
