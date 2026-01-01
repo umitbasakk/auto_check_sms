@@ -193,11 +193,39 @@ async function smsCheck() {
   }
 }
 
+async function rentedNumberExpiresCheck() {
+  try {
+    // 1. Veritabanından PENDING olanları çek
+    const res = await pool.query(`
+        SELECT 
+            *
+        FROM "RentedNumber" 
+        WHERE status = 'active'
+    `);
+    const pendingNumbers = res.rows;
+    if (pendingNumbers.length === 0) return; 
+    const now = new Date();
+
+    pendingNumbers.forEach(async(item)=>{
+        if(item.expires_at < now){
+            //await numaAdapter.releaseNumber(item.number)
+        }else{
+            console.log(item.phone+"Bu Numaranın Tarihi Henüz Geçmedi.")
+        }
+    })
+
+  }catch(err){
+    
+  }
+}
+
 async function Loop(){
     const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
     while(true){
         smsCheck();
-        await sleep(2000)
+        await sleep(2000);
+        rentedNumberExpiresCheck();
+        await sleep(1000);
     }
 }
 
