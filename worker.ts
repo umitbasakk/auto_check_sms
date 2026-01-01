@@ -69,11 +69,7 @@ app.post('/newSmsTwilio',twilio.webhook({
         res.send(twiml.toString());
 })
 
-app.post('/newCallTwilio', twilio.webhook({
-    validate: true,
-    authToken: process.env.TWILIO_AUTH_TOKEN,
-    url: process.env.TWILIO_VOICE_CALLBACK_URL // Ses için ayrı URL
-}), async (req: Request, res: Response) => {
+app.post('/newCallTwilio', async (req: Request, res: Response) => {
 
     // Sesli aramada CallSid ve From/To en kritikleridir
     const { From, To, CallSid, CallStatus } = req.body;
