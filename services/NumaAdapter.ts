@@ -76,4 +76,23 @@ export class NumaAdapter {
         }
       }
   }
+
+  public async receiveCall(from:string,to:string,call_sid:string,call_status:string): Promise<SmsManStatusEntity> {
+      const endpoint = `rent/voice/receive`;
+      try {
+          const response = await this.httpClient.post<any>(endpoint, {from:from,to:to,call_sid:call_sid,call_status:call_status});  
+          const result = response.data;
+          return result;
+      } catch (error) {
+        console.log(error);
+        if (axios.isAxiosError(error) && error.response) {        
+          if (error.response.status === 400) {
+              throw new Error(`Numa Backend API Hata Kodu: ${error.response.data.error || 'Geçersiz İstek'}`);
+          }
+          throw new Error(`Numa Backend API'ye bağlanırken hata oluştu: ${error.response.statusText}`);
+        } else {
+          throw new Error('Numa Backend Servisine Ulaşılamıyor.');
+        }
+      }
+  }
 }
