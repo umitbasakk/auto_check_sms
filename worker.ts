@@ -77,7 +77,8 @@ app.post('/newCallTwilio', twilio.webhook({
 
     // Sesli aramada CallSid ve From/To en kritikleridir
     const { From, To, CallSid, CallStatus } = req.body;
-    
+    console.log("Call From"+From)
+    console.log("Call From"+To)
     console.log(`📞 Arama geldi! Kimden: ${From}, Durum: ${CallStatus}`);
 
     // Kendi mantığını çalıştır
