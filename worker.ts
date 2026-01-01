@@ -79,7 +79,6 @@ app.post('/newCallTwilio', twilio.webhook({
     const { From, To, CallSid, CallStatus } = req.body;
     console.log("Call From"+From)
     console.log("Call To"+To);
-    console.log(`📞 Arama geldi! Kimden: ${From}, Durum: ${CallStatus}`);
 
     // Kendi mantığını çalıştır
     const twimlXml = await numaAdapter.receiveCall(From, To, CallSid,CallStatus);
