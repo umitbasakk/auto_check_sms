@@ -208,10 +208,7 @@ async function rentedNumberExpiresCheck() {
     
     pendingNumbers.forEach(async(item)=>{
         if(item.expires_at < now){
-            const result =await numaAdapter.releaseNumber(item.number)
-            console.log(item.number+"Bu Numaranın Tarihi geçti. Sonuç: "+result)
-        }else{
-            console.log(item.number+"Bu Numaranın Tarihi Henüz Geçmedi.")
+            await numaAdapter.releaseNumber(item.number)
         }
     })
 
@@ -225,8 +222,8 @@ async function Loop(){
     while(true){
         smsCheck();
         await sleep(2000);
-        rentedNumberExpiresCheck();
-        await sleep(1000);
+        //rentedNumberExpiresCheck();
+        //await sleep(1000);
     }
 }
 
