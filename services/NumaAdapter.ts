@@ -1,6 +1,7 @@
 import axios, { type AxiosInstance } from 'axios';
 import { FiveSimStatusEntity } from '../entities/FiveSimResponse';
 import { SmsManStatusEntity } from '../entities/SmsManStatusEntity';
+import { ReleaseType } from '../enums/ReleaseType';
 
 export class NumaAdapter {
   private readonly httpClient: AxiosInstance;
@@ -95,7 +96,7 @@ export class NumaAdapter {
         }
       }
   }
-  public async releaseNumber(phone:string): Promise<SmsManStatusEntity> {
+  public async releaseSubNumber(phone:string,release_type:ReleaseType): Promise<SmsManStatusEntity> {
       const endpoint = `rent/releaseauto`;
       try {
           const response = await this.httpClient.post<any>(endpoint, {phone:phone});  
