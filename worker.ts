@@ -221,7 +221,7 @@ async function rentedNumberExpiresCheck() {
                 ? ReleaseType.PRODUCTONUSER 
                 : ReleaseType.PRODUCT;
         
-        console.log("Süresi Doldu:"+releaseType+"  Numara:"+item.number)
+        await numaAdapter.release(item.number,releaseType)
     }
     
   }catch(err){
