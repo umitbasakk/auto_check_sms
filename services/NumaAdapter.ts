@@ -99,7 +99,7 @@ export class NumaAdapter {
   public async release(phone:string,release_type:ReleaseType): Promise<SmsManStatusEntity> {
       const endpoint = `rent/releaseauto`;
       try {
-          const response = await this.httpClient.post<any>(endpoint, {phone:phone});  
+          const response = await this.httpClient.post<any>(endpoint, {phone:phone,release_type:release_type});  
           const result = response.data.data;
           return result;
       } catch (error) {
