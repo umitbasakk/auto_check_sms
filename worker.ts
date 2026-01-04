@@ -8,6 +8,7 @@ import { OnlineSimAdapter } from './services/OnlineSimAdapter';
 import express, { Request, Response } from 'express';
 import { NumaAdapter } from './services/NumaAdapter';
 import twilio from 'twilio';
+import { ReleaseType } from './enums/ReleaseType';
 
 const connectionString = "postgresql://numaroot:20Bwp@12.ntrAAv@18.132.165.74:5432/numadb?schema=public&sslmode=disable";
 
@@ -75,12 +76,10 @@ app.post('/newCallTwilio', twilio.webhook({
     url: process.env.TWILIO_VOICE_CALLBACK_URL // Ses için ayrı URL
 }), async (req: Request, res: Response) => {
 
-    // Sesli aramada CallSid ve From/To en kritikleridir
     const { From, To, CallSid, CallStatus } = req.body;
     console.log("Call From"+From)
     console.log("Call To"+To);
 
-    // Kendi mantığını çalıştır
     const twimlXml = await numaAdapter.receiveCall(From, To, CallSid,CallStatus);
     console.log("Response:"+twimlXml)
     res.set('Content-Type', 'text/xml');
@@ -195,23 +194,36 @@ async function smsCheck() {
 
 async function rentedNumberExpiresCheck() {
   try {
-    // 1. Veritabanından PENDING olanları çek
-    const res = await pool.query(`
-        SELECT 
-            *
-        FROM "RentedNumber" 
-        WHERE status = 'active'
-    `);
-    const pendingNumbers = res.rows;
-    if (pendingNumbers.length === 0) return; 
-    const now = new Date();
-    
-    pendingNumbers.forEach(async(item)=>{
-        if(item.expires_at < now){
-            await numaAdapter.releaseNumber(item.number)
-        }
-    })
+    const query = `
+            SELECT 
+                rn.id AS rented_number_id,
+                rn.number,
+                nsr.id AS sub_rental_id,
+                CASE 
+                    WHEN nsr.id IS NOT NULL AND nsr.status = 'active' AND nsr.expires_at < NOW() THEN 'USER_EXPIRED'
+                    WHEN rn.is_active = true AND rn.twilio_expires_at < NOW() THEN 'PROVIDER_EXPIRED'
+                END AS release_reason
+            FROM "RentedNumber" rn
+            LEFT JOIN "NumberSubRental" nsr ON rn.id = nsr.rented_number_id AND nsr.status = 'active'
+            WHERE 
+                (nsr.id IS NOT NULL AND nsr.status = 'active' AND nsr.expires_at < NOW()) 
+                OR 
+                (rn.is_active = true AND rn.twilio_expires_at < NOW());
+        `;
+        
+    const expiredRecordsResult = await  pool.query(query)
+    const expiredRecords = expiredRecordsResult.rows;
 
+    if (expiredRecords.length === 0) return;
+    
+    for(const item of expiredRecords){
+        const releaseType = item.sub_rental_id 
+                ? ReleaseType.PRODUCTONUSER 
+                : ReleaseType.PRODUCT;
+        
+        console.log("Süresi Doldu:"+releaseType+"  Numara:"+item.number)
+    }
+    
   }catch(err){
     
   }
@@ -222,8 +234,8 @@ async function Loop(){
     while(true){
         smsCheck();
         await sleep(2000);
-        //rentedNumberExpiresCheck();
-        //await sleep(1000);
+        rentedNumberExpiresCheck();
+        await sleep(1000);
     }
 }
 
