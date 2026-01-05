@@ -81,7 +81,15 @@ app.post('/newCallTwilio', twilio.webhook({
     console.log("Call To"+To);
     console.log("Call Status"+CallStatus);
 
-    const twimlXml = await numaAdapter.receiveCall(From, To, CallSid,CallStatus);
+    const isOutgoing = From.startsWith('client:');
+    
+    let twimlXml = ""   
+    if(isOutgoing){
+        twimlXml = await numaAdapter.outComingCall(From, To, CallSid);
+
+    } else{
+        twimlXml = await numaAdapter.incomingCall(From, To, CallSid,CallStatus);
+    }
     res.set('Content-Type', 'text/xml');
     res.send(twimlXml);
 });
