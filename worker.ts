@@ -77,14 +77,10 @@ app.post('/newCallTwilio', twilio.webhook({
 }), async (req: Request, res: Response) => {
     console.log("✅ İstek başarıyla doğrulandı ve geldi.");
     const { From, To, CallSid, CallStatus } = req.body;
-    console.log("Call From"+From)
-    console.log("Call To"+To);
 
-    //const twimlXml = await numaAdapter.receiveCall(From, To, CallSid,CallStatus);
-    //console.log(twimlXml)
-    //console.log("Response:"+twimlXml)
-    //res.set('Content-Type', 'text/xml');
-    //res.send(twimlXml);
+    const twimlXml = await numaAdapter.receiveCall(From, To, CallSid,CallStatus);
+    res.set('Content-Type', 'text/xml');
+    res.send(twimlXml);
 });
 
 
