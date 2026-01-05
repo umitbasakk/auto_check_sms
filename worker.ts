@@ -75,12 +75,13 @@ app.post('/newCallTwilio', twilio.webhook({
     authToken: process.env.TWILIO_AUTH_TOKEN,
     url: process.env.TWILIO_VOICE_CALLBACK_URL // Ses için ayrı URL
 }), async (req: Request, res: Response) => {
-
+    console.log("✅ İstek başarıyla doğrulandı ve geldi.");
     const { From, To, CallSid, CallStatus } = req.body;
     console.log("Call From"+From)
     console.log("Call To"+To);
 
     const twimlXml = await numaAdapter.receiveCall(From, To, CallSid,CallStatus);
+    console.log(twimlXml)
     console.log("Response:"+twimlXml)
     res.set('Content-Type', 'text/xml');
     res.send(twimlXml);
