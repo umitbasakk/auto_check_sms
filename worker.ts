@@ -79,6 +79,7 @@ app.post('/newCallTwilio', twilio.webhook({
     const { From, To, CallSid, CallStatus } = req.body;
     console.log("Call From"+From)
     console.log("Call To"+To);
+    console.log("Call Status"+CallStatus);
 
     const twimlXml = await numaAdapter.receiveCall(From, To, CallSid,CallStatus);
     res.set('Content-Type', 'text/xml');
