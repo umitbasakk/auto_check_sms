@@ -77,10 +77,10 @@ export class NumaAdapter {
         }
       }
   }
-    public async outComingCall(from:string,to:string,call_sid:string): Promise<string> {
+    public async outComingCall(from:string,to:string,call_sid:string,client:string): Promise<string> {
       const endpoint = `rent/voice/call`;
       try {
-          const response = await this.httpClient.post<any>(endpoint, {from:from,to:to,call_sid:call_sid});  
+          const response = await this.httpClient.post<any>(endpoint, {from:from,to:to,call_sid:call_sid,client:client});  
           const result = response.data.data;
           return result;
       } catch (error) {
