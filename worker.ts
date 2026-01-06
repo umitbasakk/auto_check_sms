@@ -84,10 +84,10 @@ app.post('/newCallTwilio', twilio.webhook({
     let twimlXml = ""   
     if(isOutgoing){
         twimlXml = await numaAdapter.outComingCall(FromNumber, To, CallSid);
-        console.log("Giden Arama: From: "+FromNumber+" To:"+To)
+        console.log("Giden Arama: From: "+FromNumber+" To:"+To+" CallSid:"+CallSid)
     } else{
         twimlXml = await numaAdapter.incomingCall(From, To, CallSid,CallStatus);
-        console.log("Gelen Arama: From: "+FromNumber+" To:"+To)
+        console.log("Gelen Arama: From: "+FromNumber+" To:"+To+  " CallSid:"+CallSid)
     }
     res.set('Content-Type', 'text/xml');
     res.send(twimlXml);
