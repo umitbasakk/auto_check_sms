@@ -76,20 +76,18 @@ app.post('/newCallTwilio', twilio.webhook({
     url: process.env.TWILIO_VOICE_CALLBACK_URL // Ses için ayrı URL
 }), async (req: Request, res: Response) => {
     console.log("✅ İstek başarıyla doğrulandı ve geldi.");
-    const { From, To, CallSid, CallStatus } = req.body;
-    console.log("Call From"+From)
-    console.log("Call To"+To);
-    console.log("Call Status"+CallStatus);
+    const { From, To,FromNumber, CallSid, CallStatus } = req.body;
 
-    
+
     const isOutgoing = From.startsWith('client:');
     
     let twimlXml = ""   
     if(isOutgoing){
-        twimlXml = await numaAdapter.outComingCall(From, To, CallSid);
-
+        //twimlXml = await numaAdapter.outComingCall(From, To, CallSid);
+        console.log("Giden Arama: From: "+FromNumber+" To:"+To)
     } else{
-        twimlXml = await numaAdapter.incomingCall(From, To, CallSid,CallStatus);
+        //twimlXml = await numaAdapter.incomingCall(From, To, CallSid,CallStatus);
+        console.log("Gelen Arama: From: "+FromNumber+" To:"+To)
     }
     res.set('Content-Type', 'text/xml');
     res.send(twimlXml);
