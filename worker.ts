@@ -81,6 +81,7 @@ app.post('/newCallTwilio', twilio.webhook({
     console.log("Call To"+To);
     console.log("Call Status"+CallStatus);
 
+    
     const isOutgoing = From.startsWith('client:');
     
     let twimlXml = ""   
