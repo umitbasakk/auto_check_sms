@@ -89,7 +89,7 @@ app.post('/newCallTwilio', async (req: Request, res: Response) => {
         console.log("Giden Arama: From: "+FromNumber+" To:"+To+" CallSid:"+CallSid+ " FromClient:"+FromClient)
     } else{
         twimlXml = await numaAdapter.incomingCall(From, To, CallSid,CallStatus);
-        console.log("Gelen Arama: From: "+FromNumber+" To:"+To+  " CallSid:"+CallSid)
+        console.log("Gelen Arama: From: "+From+" To:"+To+  " CallSid:"+CallSid)
     }
     res.set('Content-Type', 'text/xml');
     res.send(twimlXml);
