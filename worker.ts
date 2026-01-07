@@ -70,6 +70,10 @@ app.post('/newSmsTwilio',twilio.webhook({
         res.send(twiml.toString());
 })
 
+app.get('/healtg',(req:Request,res:Response)=>{
+    res.send("ok")
+})
+
 app.post('/newCallTwilio', twilio.webhook({
     validate: true,
     authToken: process.env.TWILIO_AUTH_TOKEN,
