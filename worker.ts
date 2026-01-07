@@ -70,7 +70,7 @@ app.post('/newSmsTwilio',twilio.webhook({
         res.send(twiml.toString());
 })
 
-app.get('/healtg',(req:Request,res:Response)=>{
+app.get('/health',(req:Request,res:Response)=>{
     res.send("ok")
 })
 
