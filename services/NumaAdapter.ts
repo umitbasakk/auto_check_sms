@@ -81,7 +81,7 @@ export class NumaAdapter {
       const endpoint = `rent/voice/call`;
       try {
           const response = await this.httpClient.post<any>(endpoint, {from:from,to:to,call_sid:call_sid,client:client});  
-          const result = response.data.data;
+          const result = response.data;
           return result;
       } catch (error) {
         console.log(error);
