@@ -74,7 +74,11 @@ app.get('/health',(req:Request,res:Response)=>{
     res.send("ok")
 })
 
-app.post('/newCallTwilio', async (req: Request, res: Response) => {
+app.post('/newCallTwilio', /*twilio.webhook({
+    validate: true,
+    authToken: process.env.TWILIO_AUTH_TOKEN,
+    url: process.env.TWILIO_VOICE_CALLBACK_URL // Ses için ayrı URL
+}),*/ async (req: Request, res: Response) => {
     console.log("✅ İstek başarıyla doğrulandı ve geldi.");
     const { From, To,FromNumber,FromClient, CallSid, CallStatus } = req.body;
 
@@ -85,6 +89,7 @@ app.post('/newCallTwilio', async (req: Request, res: Response) => {
     if(isOutgoing){
 
         twimlXml = await numaAdapter.outComingCall(FromNumber, To, CallSid,FromClient);
+        console.log(twimlXml)
         console.log("Giden Arama: From: "+FromNumber+" To:"+To+" CallSid:"+CallSid+ " FromClient:"+FromClient)
     } else{
         //twimlXml = await numaAdapter.incomingCall(From, To, CallSid,CallStatus);
